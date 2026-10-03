@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polymarket Paper Pilot — Dashboard</title>
+<style>
+  :root{
+    --bg:#0a0b0d; --card:#121417; --card2:#16191d; --border:#22262c;
+    --text:#f2f3f5; --muted:#8b9096; --faint:#5c6167;
+    --green:#2fbf71; --green-dim:rgba(47,191,113,.13);
+    --red:#f6465d; --red-dim:rgba(246,70,93,.13);
+    --blue:#4aa8ff; --blue-dim:rgba(74,168,255,.13);
+    --amber:#f5b544; --amber-dim:rgba(245,181,68,.13);
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  body{background:var(--bg); color:var(--text);
+       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       padding:30px 22px; max-width:1200px; margin:0 auto;}
+  h1{font-size:36px; font-weight:800; letter-spacing:-.5px}
+  h1 span{color:var(--faint); font-weight:400}
+  .sub{color:var(--muted); font-size:13px; margin:8px 0 24px; display:flex; align-items:center; gap:10px}
+  .pill{font-size:11px; padding:4px 12px; border-radius:20px; border:1px solid var(--border);
+        color:var(--muted); background:var(--card)}
+  .grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:18px}
+  .grid2{display:grid; grid-template-columns:1.25fr 1fr; gap:18px; margin-bottom:18px}
+  .card{background:linear-gradient(180deg,var(--card2),var(--card));
+        border:1px solid var(--border); border-radius:16px; padding:22px}
+  /* KPI cards */
+  .kpi{display:flex; gap:16px; align-items:flex-start}
+  .icon-tile{width:58px; height:58px; border-radius:14px; flex:none;
+             display:flex; align-items:center; justify-content:center}
+  .icon-tile svg{width:28px; height:28px}
+  .t-green{background:var(--green-dim); border:1px solid rgba(47,191,113,.4)}
+  .t-green svg{stroke:var(--green)}
+  .t-red{background:var(--red-dim); border:1px solid rgba(246,70,93,.4)}
+  .t-red svg{stroke:var(--red)}
+  .t-blue{background:var(--blue-dim); border:1px solid rgba(74,168,255,.4)}
+  .t-blue svg{stroke:var(--blue)}
+  .t-amber{background:var(--amber-dim); border:1px solid rgba(245,181,68,.4)}
+  .t-amber svg{stroke:var(--amber)}
+  .kpi-body{flex:1}
+  .kpi-label{color:var(--muted); font-size:14px}
+  .kpi-row{display:flex; align-items:baseline; gap:10px; margin:2px 0}
+  .kpi-value{font-size:36px; font-weight:800; letter-spacing:-1px}
+  .delta{font-size:12.5px; font-weight:600; white-space:nowrap}
+  .kpi-foot{color:var(--faint); font-size:12px}
+  .card h2{font-size:17px; font-weight:700; margin-bottom:6px}
+  .card .hint{color:var(--faint); font-size:12px; margin-bottom:12px}
+  /* positions list (2-col like Top Revenue Sources) */
+  .pos-grid{display:grid; grid-template-columns:1fr 1fr; gap:6px 28px}
+  .pos-item{padding:12px 4px; border-bottom:1px solid #1b1f25}
+  .pos-item:nth-last-child(-n+2){border-bottom:none}
+  .pos-top{display:flex; align-items:center; justify-content:space-between; gap:10px}
+  .pos-name{font-size:13.5px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .pos-name small{color:var(--faint); font-weight:400}
+  .edge-pill{font-size:12px; font-weight:700; padding:4px 12px; border-radius:8px; white-space:nowrap}
+  .e-pos{color:var(--green); background:var(--green-dim); border:1px solid rgba(47,191,113,.35)}
+  .e-neg{color:var(--red); background:var(--red-dim); border:1px solid rgba(246,70,93,.35)}
+  .pos-meta{color:var(--faint); font-size:12px; margin-top:5px}
+  .badge{font-size:10.5px; padding:2px 9px; border-radius:20px; margin-left:8px; vertical-align:1px}
+  .b-open{background:rgba(74,168,255,.12); color:var(--blue); border:1px solid rgba(74,168,255,.35)}
+  .b-win{background:rgba(47,191,113,.12); color:var(--green); border:1px solid rgba(47,191,113,.35)}
+  .b-loss{background:rgba(246,70,93,.12); color:var(--red); border:1px solid rgba(246,70,93,.35)}
+  /* donut */
+  .donut-wrap{display:flex; align-items:center; gap:22px; margin-top:6px}
+  .donut-center{font-size:34px; font-weight:800}
+  .donut-cap{fill:var(--faint); font-size:10.5px; text-anchor:middle}
+  .legend{font-size:13.5px}
+  .legend div{margin:10px 0; display:flex; align-items:center; gap:10px; color:var(--muted)}
+  .dot{width:12px; height:12px; border-radius:3px; flex:none}
+  .foot{color:var(--faint); font-size:12px; margin-top:20px; text-align:center}
+  .empty{color:var(--faint); font-size:13px; padding:26px 0; text-align:center}
+  @media(max-width:860px){.grid3,.grid2,.pos-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<h1>Polymarket Paper Pilot <span>dashboard</span></h1>
+<div class="sub"><span class="pill">paper · sem dinheiro real</span><span id="updated">carregando…</span></div>
+
+<div class="grid3">
+  <div class="card kpi">
+    <div class="icon-tile t-green">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M3 17l5-6 4 3 6-8"/><path d="M18 6h3v3"/></svg>
+    </div>
+    <div class="kpi-body">
+      <div class="kpi-label">P&amp;L Paper</div>
+      <div class="kpi-row"><div class="kpi-value" id="kpi-pnl">$0.00</div><div class="delta" id="kpi-pnl-d"></div></div>
+      <div class="kpi-foot" id="kpi-pnl-f">banca $1.000</div>
+    </div>
+  </div>
+  <div class="card kpi">
+    <div class="icon-tile t-blue">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>
+    </div>
+    <div class="kpi-body">
+      <div class="kpi-label">Brier Score</div>
+      <div class="kpi-row"><div class="kpi-value" id="kpi-brier">—</div><div class="delta" id="kpi-brier-d"></div></div>
+      <div class="kpi-foot">baseline 0,25 · menor é melhor</div>
+    </div>
+  </div>
+  <div class="card kpi">
+    <div class="icon-tile t-amber">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+    </div>
+    <div class="kpi-body">
+      <div class="kpi-label">Posições abertas</div>
+      <div class="kpi-row"><div class="kpi-value" id="kpi-pos">0</div><div class="delta" id="kpi-pos-d"></div></div>
+      <div class="kpi-foot">máx 3 · size 2–5% · edge ≥ 5pp</div>
+    </div>
+  </div>
+</div>
+
+<div class="grid2">
+  <div class="card">
+    <h2>P&amp;L acumulado</h2>
+    <div class="hint">por resolução · começa zerado, cresce com o piloto</div>
+    <div id="chart"></div>
+  </div>
+  <div class="card">
+    <h2>Banca</h2>
+    <div class="hint">capital comprometido vs livre</div>
+    <div class="donut-wrap">
+      <svg id="donut" width="160" height="160" viewBox="0 0 160 160"></svg>
+      <div class="legend" id="donut-legend"></div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Posições</h2>
+  <div class="hint">edge = estimativa − preço · tese registrada antes da entrada</div>
+  <div class="pos-grid" id="pos-grid"></div>
+</div>
+
+<div class="foot">estimador Jev · dados de <code>data.json</code> gerado do ledger · <span id="foot-upd"></span></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const fmt$ = v => (v<0?'−$':'+$') + Math.abs(v).toFixed(2);
+
+function lineChart(el, points){
+  // points: [{label, cum}] — sempre começa em (início, 0)
+  const W=560, H=230, P={l:44,r:14,t:16,b:30};
+  const iw=W-P.l-P.r, ih=H-P.t-P.b;
+  const vals=[0,...points.map(p=>p.cum)];
+  const lo=Math.min(0,...vals), hi=Math.max(0,...vals);
+  const span=(hi-lo)||1;
+  const X=i=>P.l+iw*(i/Math.max(points.length,1));
+  const Y=v=>P.t+ih*(1-(v-lo)/span);
+  let g='';
+  const ticks=4;
+  for(let t=0;t<=ticks;t++){
+    const v=lo+span*t/ticks, y=Y(v);
+    g+=`<line x1="${P.l}" y1="${y}" x2="${W-P.r}" y2="${y}" stroke="#1e2228"/>`
+      + `<text x="${P.l-8}" y="${y+4}" fill="#5c6167" font-size="11" text-anchor="end">${v>=0?'+':''}$${v.toFixed(0)}</text>`;
+  }
+  const labels=['início',...points.map(p=>p.label)];
+  labels.forEach((l,i)=>{
+    g+=`<text x="${X(i)}" y="${H-8}" fill="#5c6167" font-size="11" text-anchor="middle">${l}</text>`;
+  });
+  const pts=vals.map((v,i)=>`${X(i)},${Y(v)}`).join(' ');
+  const last=vals.length-1;
+  const peakI=vals.indexOf(Math.max(...vals));
+  g+=`<polyline points="${pts}" fill="none" stroke="#2fbf71" stroke-width="2.5" stroke-linejoin="round"/>`
+    +`<circle cx="${X(last)}" cy="${Y(vals[last])}" r="5" fill="#2fbf71"/>`;
+  if(points.length){
+    const px=X(peakI), py=Y(vals[peakI]);
+    g+=`<g><rect x="${px-72}" y="${py-44}" width="144" height="26" rx="8" fill="#f2f3f5"/>`
+      +`<text x="${px}" y="${py-26}" fill="#0a0b0d" font-size="12" font-weight="700" text-anchor="middle">P&amp;L: ${fmt$(vals[peakI])}</text></g>`;
+  } else {
+    g+=`<text x="${P.l+iw/2}" y="${P.t+ih/2}" fill="#5c6167" font-size="13" text-anchor="middle">aguardando primeira resolução</text>`;
+  }
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%">${g}</svg>`;
+}
+
+function donut(el, risk, total){
+  const f = total>0 ? risk/total : 0;
+  const R=62, C=2*Math.PI*R, cx=80, cy=80;
+  const arc=(frac,color,off)=>frac<=0?'':`<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${color}" stroke-width="22" stroke-dasharray="${Math.max(frac*C-4,.5)} ${C}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})"/>`;
+  el.innerHTML = arc(1-f,'#22262c',0)+arc(f,'#4aa8ff', (1-f)*C)
+    + `<text x="${cx}" y="${cy-2}" text-anchor="middle" fill="#f2f3f5" font-size="30" font-weight="800">${(f*100).toFixed(0)}%</text>`
+    + `<text class="donut-cap" x="${cx}" y="${cy+18}">em risco</text>`;
+  $('donut-legend').innerHTML =
+    `<div><span class="dot" style="background:#4aa8ff"></span>Em risco · $${risk.toFixed(0)}</div>`+
+    `<div><span class="dot" style="background:#22262c;border:1px solid #2c3138"></span>Livre · $${(total-risk).toFixed(0)}</div>`;
+}
+
+fetch('data.json').then(r=>r.json()).then(d=>{
+  const upd = d.updated_at.replace('T',' ').slice(0,16).replace(/-/g,'/');
+  $('updated').textContent = 'atualizado em ' + upd + ' UTC';
+  $('foot-upd').textContent = 'sincronizado ' + upd;
+  const s=d.summary, n=s.resolved, pnl=s.total_pnl;
+
+  $('kpi-pnl').textContent = fmt$(pnl);
+  $('kpi-pnl').style.color = pnl>0?'var(--green)':pnl<0?'var(--red)':'var(--text)';
+  $('kpi-pnl-d').innerHTML = n? `<span class="${pnl>=0?'e-pos':'e-neg'} edge-pill">${(pnl/d.bankroll*100).toFixed(1)}%</span>` : '';
+  $('kpi-pnl-f').textContent = `banca $${d.bankroll.toLocaleString('pt-BR')} · ${n} resolvidas`;
+
+  $('kpi-brier').textContent = s.brier==null?'—':s.brier.toFixed(3);
+  $('kpi-brier-d').innerHTML = s.brier==null?'':(s.brier<0.25
+    ? '<span class="e-pos edge-pill">bate baseline</span>' : '<span class="e-neg edge-pill">abaixo</span>');
+
+  $('kpi-pos').textContent = s.open;
+  $('kpi-pos-d').innerHTML = n?`<span class="muted" style="color:var(--muted);font-size:12px">${n} resolvidas</span>`:'';
+
+  // chart: cumulative pnl over resolutions
+  const res = d.positions.filter(p=>p.status==='resolved')
+    .sort((a,b)=>(a.resolved_at||'').localeCompare(b.resolved_at||''));
+  let cum=0;
+  lineChart($('chart'), res.map(p=>{ cum+=p.pnl||0;
+    return {label:(p.resolved_at||'').slice(5,10).replace('-','/'), cum}; }));
+
+  const risk = d.positions.filter(p=>p.status==='open').reduce((a,p)=>a+p.notional,0);
+  donut($('donut'), risk, d.bankroll);
+
+  $('pos-grid').innerHTML = d.positions.map(p=>{
+    const st = p.status==='open' ? '<span class="badge b-open">aberta</span>'
+      : (p.outcome===1?'<span class="badge b-win">win</span>':'<span class="badge b-loss">loss</span>');
+    const pnl = p.pnl==null?'':` · <b style="color:${p.pnl>=0?'var(--green)':'var(--red)'}">${fmt$(p.pnl)}</b>`;
+    return `<div class="pos-item"><div class="pos-top">`
+      + `<div class="pos-name">${p.short} <small>$${p.notional.toFixed(0)}</small>${st}</div>`
+      + `<div class="edge-pill ${p.edge_pp>=0?'e-pos':'e-neg'}">${p.edge_pp>=0?'+':''}${p.edge_pp.toFixed(1)}pp</div></div>`
+      + `<div class="pos-meta">${p.side} @ ${p.price_cents}¢ · P est. ${(p.p_estimate*100).toFixed(0)}% · ${p.resolves_at}${pnl}</div></div>`;
+  }).join('');
+}).catch(()=>{ $('updated').textContent='erro ao carregar data.json'; });
+</script>
+</body>
+</html>

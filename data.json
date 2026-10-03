@@ -1,0 +1,49 @@
+{
+ "updated_at": "2026-10-03T09:27:15+00:00",
+ "bankroll": 1000.0,
+ "summary": {
+  "open": 2,
+  "resolved": 0,
+  "total_pnl": 0.0,
+  "brier": null,
+  "baseline": 0.25
+ },
+ "positions": [
+  {
+   "id": "pm-20261003-001",
+   "short": "BTC $100k out",
+   "question": "Will Bitcoin reach $100,000 in October?",
+   "side": "YES",
+   "price_cents": 10.5,
+   "p_estimate": 0.26,
+   "edge_pp": 15.5,
+   "size_pct": 5.0,
+   "notional": 50.0,
+   "thesis": "Jev estima 26% vs preço 10,5¢ (edge +15,5pp). Quant momentum (drift 30d) dá 29,5% — concorda; quant conservador (drift 0) dá 11,2% — discorda, registrado. BTC a $84.557 (+9,4%/30d), vol diária 2,13%, precisa +18,3% em 28 dias. Mercado de cauda parece soft.",
+   "estimator": "jev/jev-1.13.0",
+   "opened_at": "2026-10-03T08:31:41+00:00",
+   "resolves_at": "2026-11-01 (fim de outubro; toca $100k a qualquer momento)",
+   "status": "open",
+   "outcome": null,
+   "pnl": null
+  },
+  {
+   "id": "pm-20261003-002",
+   "short": "Lula vence",
+   "question": "Will Luiz Inácio Lula da Silva win the 2026 Brazilian presidential election?",
+   "side": "YES",
+   "price_cents": 42.5,
+   "p_estimate": 0.57,
+   "edge_pp": 14.5,
+   "size_pct": 3.0,
+   "notional": 30.0,
+   "thesis": "Jev estima 57% vs preço 42,5¢ (edge +14,5pp). Tese da casa registrada em 03/10 (53%) confirma de forma independente. Base: Datafolha 01/10 (Lula 42x38 1ºT; 48x45 2ºT) + AtlasIntel 29/09 (45,3x42,2 1ºT; 47,6x47,7 2ºT). Mercado resolve no vencedor eventual incluindo 2º turno.",
+   "estimator": "jev/jev-1.13.0",
+   "opened_at": "2026-10-03T08:31:41+00:00",
+   "resolves_at": "2026-10-27 (check final; mercado cobre 2º turno de 25/10)",
+   "status": "open",
+   "outcome": null,
+   "pnl": null
+  }
+ ]
+}
