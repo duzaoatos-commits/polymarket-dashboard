@@ -48,12 +48,23 @@
   .card h2{font-size:17px; font-weight:700; margin-bottom:6px}
   .card .hint{color:var(--faint); font-size:12px; margin-bottom:12px}
   /* positions list (2-col like Top Revenue Sources) */
+  /* positions — Polymarket market-row structure */
   .pos-grid{display:grid; grid-template-columns:1fr 1fr; gap:6px 28px}
-  .pos-item{padding:12px 4px; border-bottom:1px solid #1b1f25}
+  .pos-item{padding:14px 4px; border-bottom:1px solid #1b1f25}
   .pos-item:nth-last-child(-n+2){border-bottom:none}
-  .pos-top{display:flex; align-items:center; justify-content:space-between; gap:10px}
-  .pos-name{font-size:13.5px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-  .pos-name small{color:var(--faint); font-weight:400}
+  .pm-row{display:flex; align-items:center; gap:14px}
+  .pm-avatar{width:46px; height:46px; border-radius:12px; object-fit:cover; flex:none; background:#1c2026}
+  .pm-id{flex:1; min-width:0}
+  .pm-name{font-size:15px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .pm-name a{color:var(--text); text-decoration:none}
+  .pm-vol{color:var(--faint); font-size:12px; margin-top:2px}
+  .pm-pct{font-size:30px; font-weight:800; letter-spacing:-1px; margin-left:auto; white-space:nowrap}
+  .pm-move{font-size:13px; font-weight:700; margin-left:8px; white-space:nowrap}
+  .mv-up{color:var(--green)} .mv-dn{color:var(--red)} .mv-flat{color:var(--faint)}
+  .pm-entry{flex:none; margin-left:14px; background:var(--green); color:#06130c;
+            font-weight:800; font-size:14px; padding:12px 18px; border-radius:10px; white-space:nowrap}
+  .pm-sub{display:flex; align-items:center; gap:10px; margin-top:10px; flex-wrap:wrap}
+  .pos-meta{color:var(--faint); font-size:12px}
   .edge-pill{font-size:12px; font-weight:700; padding:4px 12px; border-radius:8px; white-space:nowrap}
   .e-pos{color:var(--green); background:var(--green-dim); border:1px solid rgba(47,191,113,.35)}
   .e-neg{color:var(--red); background:var(--red-dim); border:1px solid rgba(246,70,93,.35)}
@@ -220,14 +231,27 @@ fetch('data.json').then(r=>r.json()).then(d=>{
     const pnl = p.pnl==null?'':` · <b style="color:${p.pnl>=0?'var(--green)':'var(--red)'}">${fmt$(p.pnl)}</b>`;
     const evc = p.ev_dollars>=0?'var(--green)':'var(--red)';
     const name = p.market_url
-      ? `<a href="${p.market_url}" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none;border-bottom:1px dotted var(--faint)">${p.short} ↗</a>`
-      : p.short;
-    return `<div class="pos-item"><div class="pos-top">`
-      + `<div class="pos-name">${name} <small>$${p.notional.toFixed(0)}</small>${st}</div>`
-      + `<div class="edge-pill ${p.edge_pp>=0?'e-pos':'e-neg'}">${p.edge_pp>=0?'+':''}${p.edge_pp.toFixed(1)}pp</div></div>`
-      + `<div class="pos-meta">${p.side} @ ${p.price_cents}¢ · P est. ${(p.p_estimate*100).toFixed(0)}%`
+      ? `<a href="${p.market_url}" target="_blank" rel="noopener">${p.display_name||p.short} ↗</a>`
+      : (p.display_name||p.short);
+    const vol = p.volume_usd ? '$'+(p.volume_usd>=1e6
+      ? (p.volume_usd/1e6).toFixed(1)+'M' : Math.round(p.volume_usd/1e3)+'k')+' Vol.' : '';
+    const cur = p.current_price_cents;
+    const pctHtml = cur==null ? '' :
+      `<div class="pm-pct">${cur}%</div>` +
+      (p.move_pp==null ? '' :
+        p.move_pp>0 ? `<div class="pm-move mv-up">▲${p.move_pp}</div>`
+        : p.move_pp<0 ? `<div class="pm-move mv-dn">▼${Math.abs(p.move_pp)}</div>`
+        : `<div class="pm-move mv-flat">–</div>`);
+    const img = p.image ? `<img class="pm-avatar" src="${p.image}" alt="" loading="lazy">` : '';
+    return `<div class="pos-item"><div class="pm-row">${img}`
+      + `<div class="pm-id"><div class="pm-name">${name}</div>`
+      + `<div class="pm-vol">${vol}</div></div>`
+      + pctHtml
+      + `<div class="pm-entry">${p.side} @ ${p.price_cents}¢</div></div>`
+      + `<div class="pm-sub"><div class="edge-pill ${p.edge_pp>=0?'e-pos':'e-neg'}">edge ${p.edge_pp>=0?'+':''}${p.edge_pp.toFixed(1)}pp</div>${st}`
+      + `<div class="pos-meta">P est. ${(p.p_estimate*100).toFixed(0)}%`
       + ` · ganho est. <b style="color:${evc}">${p.ev_dollars>=0?'+':''}$${Math.abs(p.ev_dollars).toFixed(2)}</b>`
-      + ` (se ganhar: $${p.payout_if_win.toFixed(2)}) · ${p.resolves_at}${pnl}</div></div>`;
+      + ` (se ganhar: $${p.payout_if_win.toFixed(2)}) · $${p.notional.toFixed(0)} · ${p.resolves_at}${pnl}</div></div></div>`;
   }).join('');
 }).catch(()=>{ $('updated').textContent='erro ao carregar data.json'; });
 </script>

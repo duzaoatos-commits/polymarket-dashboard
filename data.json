@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-10-03T09:46:49+00:00",
+ "updated_at": "2026-10-03T10:07:45+00:00",
  "bankroll": 50.0,
  "plan": "50x1",
  "summary": {
@@ -13,8 +13,13 @@
   {
    "id": "pm-20261003-001",
    "short": "BTC $100k out",
+   "display_name": "Bitcoin $100k em outubro",
    "question": "Will Bitcoin reach $100,000 in October?",
    "market_url": "https://polymarket.com/event/what-price-will-bitcoin-hit-in-october-2026",
+   "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/BTC+fullsize.png",
+   "volume_usd": 109288.0,
+   "current_price_cents": 8.5,
+   "move_pp": -2.0,
    "side": "YES",
    "price_cents": 10.5,
    "p_estimate": 0.26,
@@ -34,8 +39,13 @@
   {
    "id": "pm-20261003-002",
    "short": "Lula vence",
+   "display_name": "Luiz Inácio Lula da Silva",
    "question": "Will Luiz Inácio Lula da Silva win the 2026 Brazilian presidential election?",
    "market_url": "https://polymarket.com/event/brazil-presidential-election",
+   "image": "https://polymarket-upload.s3.us-east-2.amazonaws.com/will-luiz-incio-lula-da-silva-win-the-2026-brazilian-presidential-election-reTil6nEVB1J.jpg",
+   "volume_usd": 14133659.0,
+   "current_price_cents": 42.5,
+   "move_pp": 0.0,
    "side": "YES",
    "price_cents": 42.5,
    "p_estimate": 0.57,
