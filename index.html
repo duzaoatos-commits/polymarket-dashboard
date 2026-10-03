@@ -106,7 +106,7 @@
     <div class="kpi-body">
       <div class="kpi-label">Posições abertas</div>
       <div class="kpi-row"><div class="kpi-value" id="kpi-pos">0</div><div class="delta" id="kpi-pos-d"></div></div>
-      <div class="kpi-foot">máx 3 · size 2–5% · edge ≥ 5pp</div>
+      <div class="kpi-foot">plano $50 · $1 por entrada · edge ≥ 5pp</div>
     </div>
   </div>
 </div>
@@ -218,10 +218,16 @@ fetch('data.json').then(r=>r.json()).then(d=>{
     const st = p.status==='open' ? '<span class="badge b-open">aberta</span>'
       : (p.outcome===1?'<span class="badge b-win">win</span>':'<span class="badge b-loss">loss</span>');
     const pnl = p.pnl==null?'':` · <b style="color:${p.pnl>=0?'var(--green)':'var(--red)'}">${fmt$(p.pnl)}</b>`;
+    const evc = p.ev_dollars>=0?'var(--green)':'var(--red)';
+    const name = p.market_url
+      ? `<a href="${p.market_url}" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none;border-bottom:1px dotted var(--faint)">${p.short} ↗</a>`
+      : p.short;
     return `<div class="pos-item"><div class="pos-top">`
-      + `<div class="pos-name">${p.short} <small>$${p.notional.toFixed(0)}</small>${st}</div>`
+      + `<div class="pos-name">${name} <small>$${p.notional.toFixed(0)}</small>${st}</div>`
       + `<div class="edge-pill ${p.edge_pp>=0?'e-pos':'e-neg'}">${p.edge_pp>=0?'+':''}${p.edge_pp.toFixed(1)}pp</div></div>`
-      + `<div class="pos-meta">${p.side} @ ${p.price_cents}¢ · P est. ${(p.p_estimate*100).toFixed(0)}% · ${p.resolves_at}${pnl}</div></div>`;
+      + `<div class="pos-meta">${p.side} @ ${p.price_cents}¢ · P est. ${(p.p_estimate*100).toFixed(0)}%`
+      + ` · ganho est. <b style="color:${evc}">${p.ev_dollars>=0?'+':''}$${Math.abs(p.ev_dollars).toFixed(2)}</b>`
+      + ` (se ganhar: $${p.payout_if_win.toFixed(2)}) · ${p.resolves_at}${pnl}</div></div>`;
   }).join('');
 }).catch(()=>{ $('updated').textContent='erro ao carregar data.json'; });
 </script>
